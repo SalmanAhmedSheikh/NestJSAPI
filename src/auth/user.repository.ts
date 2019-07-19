@@ -11,23 +11,23 @@ export class UserRepository extends Repository<User>{
 
         const { username, password } = authCredentialDto;
 
-        const salt =await  bcrypt.genSalt();
-        console.log('salt',salt);
 
 
         const user = new User();
         user.username = username;
-        user.password = password;
+
+        user.salt=await  bcrypt.genSalt();
+        user.password = await this.hashPassword(password,user.salt);
 
         //console.log('About to Save');
 
 
         try {
-          //  await user.save();
+            await user.save();
 
         }
         catch (e) {
-            // console.log('Error in user. repository',e.code);
+             console.log('Error in user. repository',e.code);
 
             if (e.code === '23505') {
                 throw new ConflictException('Username Already Exist');
@@ -40,5 +40,11 @@ export class UserRepository extends Repository<User>{
         }
     }
 
+
+    private async hashPassword(password:string,salt:string)
+    {
+
+        return bcrypt.hash(password,salt);
+    }
 
 }
