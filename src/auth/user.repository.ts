@@ -50,6 +50,8 @@ export class UserRepository extends Repository<User>{
 
 async validatePassword(authCredentialDto:AuthCredentialDto):Promise<string>
 {
+
+    console.log('authCredentialDto',authCredentialDto);
 const {username,password}=authCredentialDto;
 const user=await this.findOne({username});
 
