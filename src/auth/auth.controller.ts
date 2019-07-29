@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './dto/get-user.decorator';
 import { User } from './user.entity';
+import { UserAvatarFilePath } from './dto/user-avatar-file.dto';
 //import { AuthService } from 'dist/auth/auth.service';
 
 @Controller('auth')
@@ -38,7 +39,7 @@ console.log('authCredentialDto',authCredentialDto);
     GetUser(@GetUser() user:User)
     {
      console.log('user',user);   
-    // return user;
+     return user;
     }
 
     @Post('/test')
@@ -46,4 +47,20 @@ console.log('authCredentialDto',authCredentialDto);
     test(@Req() req) {
         console.log(req);
     }
+
+
+@Post('/UpdateUserImage')
+@UseGuards(AuthGuard())
+UpdateUserImage(@Body(ValidationPipe) userAvatar:UserAvatarFilePath,
+@GetUser() myuser :User,
+
+):Promise<any>
+{
+console.log('In Controller');
+console.log('image',userAvatar.imagePath);
+
+ return this.authService.updateUserImage(userAvatar,myuser);
+
+}
+
 }
