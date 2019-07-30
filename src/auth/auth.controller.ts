@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, UseGuards, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseGuards, Req, UseInterceptors, Get, Param } from '@nestjs/common';
 import { AuthCredentialDto } from './dto/auth-credentials.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -6,11 +6,13 @@ import { GetUser } from './dto/get-user.decorator';
 import { User } from './user.entity';
 import { UserAvatarFilePath } from './dto/user-avatar-file.dto';
 //import { AuthService } from 'dist/auth/auth.service';
-import {FileInterceptor} from '@nestjs/platform-express'
-import {UploadedFile} from '@nestjs/common';
-import { diskStorage } from  'multer';
-import { extname } from  'path';
+import { FileInterceptor } from '@nestjs/platform-express'
+import { UploadedFile } from '@nestjs/common';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Res } from '@nestjs/common';
 import { userInfo } from 'os';
+import { request } from 'http';
 
 
 @Controller('auth')
@@ -53,7 +55,7 @@ export class AuthController {
         console.log(req);
     }
 
-//For DB Save
+    //For DB Save
     @Post('/UpdateUserImage')
     @UseGuards(AuthGuard())
     UpdateUserImage(@Body(ValidationPipe) userAvatar: UserAvatarFilePath,
@@ -71,21 +73,51 @@ export class AuthController {
     //For Uploading Image on location
     @Post('/upload')
     @UseGuards(AuthGuard())
-    @UseInterceptors(FileInterceptor('file',{storage:diskStorage({destination:'./Avatars',
-    filename: (req, file, cb) => {
-    console.log('req.user1',req.user);
-    
-    var myuser:User;
-    myuser=req.user;
-        const randomName =myuser.username;
-        return cb(null, `${randomName}${extname(file.originalname)}`);
-      }
-      
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './Avatars',
+            filename: (req, file, cb) => {
+                console.log('req.user1', req.user);
+
+                var myuser: User;
+                myuser = req.user;
+                const randomName = myuser.username;
+                return cb(null, `${randomName}${extname(file.originalname)}`);
+            }
 
 
-})}))
+
+        })
+    }))
     uploadFile(@UploadedFile() file) {
-      console.log(file);
+        console.log(file);
+
+
     }
+
+
+
+    //Wont use below
+    /*
+    
+    @Post('GetUserAvatar/:FileName')
+    @UseGuards(AuthGuard())
+    async serveAvatar(@Param('FileName') fileId, @Res() res): Promise<any> {
+      res.sendFile(fileId, { root: './Avatars'});
+    }
+    */
+
+
+    @Post('getUserPhoto')
+    @UseGuards(AuthGuard())
+    getUserPhoto(@GetUser() user: User, @Res() res) {
+
+        res.sendFile(user.username.toString() + ".png", { root: './Avatars' });
+    }
+
+
+
+
+
 }
 
