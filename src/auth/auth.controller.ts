@@ -112,12 +112,16 @@ export class AuthController {
     @UseGuards(AuthGuard())
     getUserPhoto(@GetUser() user: User, @Res() res) {
 
-        res.sendFile(user.username.toString() + ".png", { root: './Avatars' });
+        res.sendFile(user.username.toString() + ".jpg", { root: './Avatars' });
+
     }
 
 
-
-
+    // since all pics are save with user name plus jpg so we will pass user name as argument
+    @Get('getProfilePic/:username')
+    async getProfilePic(@Param('username') username, @Res() res): Promise<any> {
+        res.sendFile(username+'.jpg', { root: './Avatars' });
+    }
 
 }
 
