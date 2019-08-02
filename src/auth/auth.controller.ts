@@ -117,11 +117,21 @@ export class AuthController {
     }
 
 
-    // since all pics are save with user name plus jpg so we will pass user name as argument
+    // since all pics are save with user name plus jpg so we will pass user name as argument, If there is no pic user will see SOL.jpg as default pic
     @Get('getProfilePic/:username')
     async getProfilePic(@Param('username') username, @Res() res): Promise<any> {
-        res.sendFile(username+'.jpg', { root: './Avatars' });
+        res.sendFile(username+'.jpg', { root: './Avatars' },(e)=>{
+            if(e)
+            {
+                res.sendFile('SOL.jpg', { root: './Avatars' });
+            }
+        });
     }
+
+
+
+
+
 
 }
 
